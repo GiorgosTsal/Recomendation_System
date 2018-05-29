@@ -53,10 +53,14 @@ public class Nearest_Neighbor {// keep a matrix with the K Nearest Neighbors
 			}
 			break;
 		}
-			
-		
-		
-		
+	}
+	
+	public float get_sum_similaty(){
+		float sum =0;
+		for(int i=0; i<size; i++){
+			sum = sum + matrix[i].value;
+		}
+		return sum ;
 	}
 	
 	public Tuple get_min(){
