@@ -9,6 +9,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableColumnModelEvent;
 import javax.swing.JLabel;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -32,6 +33,12 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.Font;
 
 
 
@@ -53,6 +60,7 @@ public class GUI extends JPanel{
 	private JRadioButton pearson;
 	private JButton btnNewButton_1;
 	private JButton btnNewButton;
+	private JTable table;
 	
 	public GUI(){
 		setBorder(UIManager.getBorder("RadioButtonMenuItem.border"));
@@ -68,17 +76,19 @@ public class GUI extends JPanel{
 	         		System.out.println("read CONFIGFILE.txt");
 //	         		btnNewButton_1.doClick();
 	         		
-	         		if(pearson.isSelected()){
-	         			System.out.println("running " + pearson.getText());
-	         		}
-	         		else if(jaccard.isSelected()){
+
+	         		if(jaccard.isSelected()){
 	         			System.out.println("running " + jaccard.getText());
+	         			recomendation_system.find_all_neighbors(1);
 	         		}
 	         		else if(cosine.isSelected()){
 	         			System.out.println("running " + cosine.getText());
-	         			recomendation_system.find_all_neighbors();
+	         			recomendation_system.find_all_neighbors(2);
 	         		}
-	         		
+	         		else if(pearson.isSelected()){
+	         			System.out.println("running " + pearson.getText());
+	         			recomendation_system.find_all_neighbors(3);
+	         		}
 	         	}
 	         });
 	        
@@ -97,8 +107,13 @@ public class GUI extends JPanel{
 	                textField_M.setText(Integer.toString(recomendation_system.M));
 	                textField_X.setText(Integer.toString(recomendation_system.X)+"%");
 	                textField_K.setText(Integer.toString(recomendation_system.K));
-
-		         		
+//	                https://stackoverflow.com/questions/25080951/jtable-set-cell-color-at-specific-value
+	                
+	                DefaultTableModel model = new DefaultTableModel();
+	                model.addRow(new Object[]{"Column 1", "Column 2", "Column 3","adad"});
+	                model.addRow(new Object[]{"Column 1", "Column 2", "Column 3","adad"});
+	                table.setModel(model);
+	                
 		         	}
 		         });
 	    }
@@ -114,6 +129,8 @@ public class GUI extends JPanel{
 	         JScrollPane scrollPane = new JScrollPane();
 	         
 	         JPanel panel_3 = new JPanel();
+	         
+	         JPanel panel_4 = new JPanel();
 
 	         GroupLayout groupLayout = new GroupLayout(this);
 	         groupLayout.setHorizontalGroup(
@@ -122,50 +139,79 @@ public class GUI extends JPanel{
 	         			.addContainerGap()
 	         			.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 	         				.addGroup(groupLayout.createSequentialGroup()
-	         					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+	         					.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
 	         					.addGap(30))
 	         				.addGroup(groupLayout.createSequentialGroup()
 	         					.addComponent(panel_1, 0, 0, Short.MAX_VALUE)
 	         					.addGap(102)))
 	         			.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-	         				.addComponent(btnRun)
+	         				.addGroup(groupLayout.createSequentialGroup()
+	         					.addComponent(btnRun)
+	         					.addPreferredGap(ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
+	         					.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 331, GroupLayout.PREFERRED_SIZE))
 	         				.addGroup(groupLayout.createSequentialGroup()
 	         					.addGap(8)
 	         					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 	         					.addPreferredGap(ComponentPlacement.RELATED)
-	         					.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-	         					.addGap(24)))
-	         			.addGap(28))
+	         					.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)))
+	         			.addGap(52))
 	         );
 	         groupLayout.setVerticalGroup(
-	         	groupLayout.createParallelGroup(Alignment.LEADING)
+	         	groupLayout.createParallelGroup(Alignment.TRAILING)
 	         		.addGroup(groupLayout.createSequentialGroup()
 	         			.addGap(109)
 	         			.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-	         			.addContainerGap(302, Short.MAX_VALUE))
-	         		.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+	         			.addContainerGap(307, Short.MAX_VALUE))
+	         		.addGroup(groupLayout.createSequentialGroup()
 	         			.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
 	         				.addGroup(groupLayout.createSequentialGroup()
 	         					.addContainerGap()
-	         					.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-	         				.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 209, Short.MAX_VALUE))
-	         			.addGap(9)
+	         					.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE))
+	         				.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 214, Short.MAX_VALUE))
 	         			.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-	         				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-	         					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 184, GroupLayout.PREFERRED_SIZE)
-	         					.addContainerGap())
-	         				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-	         					.addComponent(btnRun)
-	         					.addGap(71))))
+	         				.addGroup(groupLayout.createSequentialGroup()
+	         					.addGap(9)
+	         					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+	         						.addGroup(groupLayout.createSequentialGroup()
+	         							.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 184, GroupLayout.PREFERRED_SIZE)
+	         							.addPreferredGap(ComponentPlacement.RELATED))
+	         						.addGroup(groupLayout.createSequentialGroup()
+	         							.addComponent(btnRun)
+	         							.addGap(71))))
+	         				.addGroup(groupLayout.createSequentialGroup()
+	         					.addGap(41)
+	         					.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 123, GroupLayout.PREFERRED_SIZE)))
+	         			.addGap(11))
 	         );
+	         panel_4.setLayout(new GridLayout(1, 0, 0, 0));
+	         
+	         table = new JTable();
+             // Columns for table
+             String[] columns = {"Name", "Age", "Gender"};
+             
+             // 2D array is used for data in table
+             String[][] data = {{"John", "18", "Male"},
+                     {"Daisy", "19", "Female"},
+                     {"Dave", "23", "Male"},
+                     {"Jake", "30", "Male"}};
+     
+//	         	table = new JTable(data, columns);
+	         	
+                DefaultTableModel model = new DefaultTableModel();
+                model.addRow(new Object[]{"Column 1", "Column 2", "Column 3","adad"});
+                model.addRow(new Object[]{"Column 1", "Column 2", "Column 3","adad"});
+                table.setModel(model);
+	         panel_4.add(table);
 	                  panel_3.setLayout(new GridLayout(0, 1, 0, 0));
 	                  
 	                  JScrollPane scrollPane_1 = new JScrollPane();
 	                  panel_3.add(scrollPane_1);
 	                  
 	                           textPane = new JTextPane();
+	                           textPane.setForeground(new Color(102, 0, 255));
+	                           textPane.setFont(new Font("Calibri", Font.PLAIN, 11));
 	                           scrollPane_1.setViewportView(textPane);
-	                           textPane.setBackground(Color.GRAY);
+	                           textPane.setBackground(new Color(51, 204, 102));
 	         panel_2.setLayout(new GridLayout(0, 1, 0, 0));
 	         
 	         btnNewButton_1 = new JButton("read values");
@@ -237,5 +283,4 @@ public class GUI extends JPanel{
 	    	
 	    	
 	    }
-	
 }

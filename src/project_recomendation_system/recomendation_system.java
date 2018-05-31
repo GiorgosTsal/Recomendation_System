@@ -24,8 +24,10 @@ public class recomendation_system extends JPanel {
 
     
     static GUI gui;
-    static Data_Matrix data,data_predicted ;
+    static Data_Matrix data,data_predicted,error_matrix ;
     static int T,N,M,X,K;
+    static Nearest_Neighbor[] all_neighbors;
+
     
 	public  static void main(String args[]) {
         EventQueue.invokeLater(new Runnable() {
@@ -48,39 +50,54 @@ public class recomendation_system extends JPanel {
 		gui = new GUI();
 
     }
+	
+	
+	public static void find_error(){
+		
+//        for(int i=0; i< data.M; i++){
+//        	for(int j=0; j<data.N; j++){
+//        		if(data.data[i][j] !=-1){
+//        			error_matrix.data[i][j] = Math.abs(data.data[i][j] - data_predicted.data[i][j]);
+//        		}
+//        		else{
+//        			error_matrix.data[i][j] = -1 ;
+//        		}
+//        	}
+//        } 
+
+		error_matrix = data.get_error_matrix(data_predicted);
+        System.out.println("error matrix:");
+        error_matrix.print_data_matrix();
+        System.out.println("total error :" + data.get_total_error(data_predicted));
+		
+		
+	}
 
 	
-	public static void find_all_neighbors(){
-		Nearest_Neighbor[] all_neighbors = new Nearest_Neighbor[data.N];
+	public static void find_all_neighbors(int case_similarity){
+		all_neighbors = new Nearest_Neighbor[data.N];
 		for(int j=0; j<data.N; j++){
 			all_neighbors[j] = new Nearest_Neighbor(data.M, "max");
-			all_neighbors[j] = compute_cosine(j);
+			all_neighbors[j] = find_k_neighbors(j,case_similarity);
 		}
 		
-//		float sum = 0;
-//		all_neighbors[0].print_matrix();
-//        for(int i=0; i< data.M; i++){
-//            if(data.data[i][0]==-1){
-//            	System.out.println("found null at : "+ i);
-//            	for(int k=0; k<K; k++){
-//            		sum = sum + all_neighbors[0].matrix[k].value*data.data[i][all_neighbors[0].matrix[k].index];
-//            	}
-//            	sum = sum / all_neighbors[0].get_sum_similaty();
-//            	System.out.println("new value: " + sum );
-//            }
-//            
-//        }
-		///////////////////////////////
+		prediction();
+	}
+	
+	public static void prediction(){
+		
         for(int i=0; i< data.M; i++){
         	for(int j=0; j<data.N; j++){
         		data_predicted.data[i][j] = data.data[i][j];
-        		if(data.data[i][j]==-1){
         			data_predicted.data[i][j] = (int)(find_predicted_val(all_neighbors[j], data, i, j));
-        		}
+    
         	}
         }
+        System.out.println("new predicted matrix!");
         data_predicted.print_data_matrix();
-        
+		find_error();
+		
+		
 	}
 	
 	public static float find_predicted_val(Nearest_Neighbor geitones , Data_Matrix data , int i , int j){
@@ -98,7 +115,7 @@ public class recomendation_system extends JPanel {
 		return val ;
 	}
 	
-	public static Nearest_Neighbor compute_cosine(int index_vector){
+	public static Nearest_Neighbor find_k_neighbors(int index_vector,int case_similarity){
 		int howMany = K;
         Nearest_Neighbor neighbors = new Nearest_Neighbor(howMany, "max");
         double[] vector1,vector2;
@@ -119,13 +136,22 @@ public class recomendation_system extends JPanel {
 	                vector2[i] = data.data[i][j];
 	            
 	            } 
-	            double val = Cosine_similarity.compute(vector1, vector2);
+	            double val = similarity.Cosine(vector1, vector2);
+	            
+	            
+	            switch(case_similarity){
+	            
+	            case 1: val=similarity.Jacard(vector1, vector2);  break ;
+	            case 2: val=similarity.Cosine(vector1, vector2);  break ;
+	            case 3: val=similarity.Pearson(vector1, vector2); break;
+	            
+	            }
 	            neighbors.add_new_value(j, (float)val);
 	
 	        }
         }
 //        neighbors.print_matrix();
-        return neighbors ;
+        return neighbors ; 
 	}
 
     public static void readTXT(){
@@ -188,14 +214,14 @@ public class recomendation_system extends JPanel {
     
     public static void createMatrix(){
         data = new Data_Matrix(M, N, X);
-        data.print_data_matrix();
-        data.print_data_matrix_graphics(gui.textPane);
-        
         data_predicted = new Data_Matrix(M, N, X);
+        error_matrix = new Data_Matrix(M, N, X);
+        
+        data.print_data_matrix_graphics(gui.textPane); // print our data matrix in gui
+        
+
 //        data_predicted.print_data_matrix();
 //        data_predicted.print_data_matrix_graphics(gui.textPane);
     }
     
 }
-
-
