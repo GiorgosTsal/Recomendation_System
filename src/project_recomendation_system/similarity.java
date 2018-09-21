@@ -13,6 +13,7 @@ public class similarity {
 			System.err.println("at computation of cosine similarity vectors are not the same length!");
 			return 0.0 ;
 		}
+		
 		int length = vector1.length;
 		
 		for(int index=0; index<length; index++){
@@ -119,7 +120,7 @@ public class similarity {
 		}
 		
 		Double val = Math.abs(Cosine(vector1, vector2));
-		System.err.println(val);
+//		System.err.println(val);
 		return val;
 	}
 }

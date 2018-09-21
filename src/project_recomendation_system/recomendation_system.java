@@ -27,15 +27,19 @@ public class recomendation_system extends JPanel {
     static Data_Matrix data,data_predicted,error_matrix ;
     static int T,N,M,X,K;
     static Nearest_Neighbor[] all_neighbors;
-
+    static boolean exercise_A_or_B = false ;
+    static boolean reverse = false ;
     
 	public  static void main(String args[]) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-            	recomendation_system project = new recomendation_system();
+//            	recomendation_system project = new recomendation_system();
+            	
+            	recomendation_system.gui = new GUI();
+            	
                 JFrame f = new JFrame("recomendation system");
-                f.getContentPane().add(project.gui);
+                f.getContentPane().add(recomendation_system.gui);
                 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 f.pack();
                 f.setVisible(true);
@@ -50,26 +54,209 @@ public class recomendation_system extends JPanel {
 		gui = new GUI();
 
     }
+	 
+	// write txt files 
+	// revers matrix 
+	// second plot 
+	// create jar for execution 
+	// ftiaxe kai to kolomatrix sta mpam 
 	
+	public static void exercise_A(){
+		exercise_A_or_B = false ;
+		gui.clear.doClick(); // clear plot 
+		exercise_step(3,75,"A");
+		exercise_step(5,75,"A");
+		exercise_step(10,75,"A");
+	}
 	
-	public static void find_error(){
+	public static void exercise_B(){
+		exercise_A_or_B = true ;
+		gui.clear.doClick(); // clear plot 
+		exercise_step(5,80,"B");
+		exercise_step(5,70,"B");
+		exercise_step(5,50,"B");
+		exercise_step(5,30,"B");
+	}
+	
+	public static void exercise_step(int k , int x,String exersice){
 		
-//        for(int i=0; i< data.M; i++){
-//        	for(int j=0; j<data.N; j++){
-//        		if(data.data[i][j] !=-1){
-//        			error_matrix.data[i][j] = Math.abs(data.data[i][j] - data_predicted.data[i][j]);
-//        		}
-//        		else{
-//        			error_matrix.data[i][j] = -1 ;
-//        		}
-//        	}
-//        } 
+		
+		// set right parameters for exercise 
+		gui.textField_T.setText(Integer.toString(10));
+		gui.textField_N.setText(Integer.toString(50));
+		gui.textField_M.setText(Integer.toString(50));
+		gui.textField_X.setText(Integer.toString(x)+"%");
+		gui.textField_K.setText(Integer.toString(k));
+		setTxt(); // set txt parameters 
+		readTXT(); // read txt....
+		
+		
+       float error_Jacard,error_Cosine,error_Pearson;
+       error_Jacard = 	0 ;
+       error_Cosine = 	0 ;
+       error_Pearson =	0 ;
+
+      
+       
+		for(int iterations=0; iterations<T; iterations++){
+	 		createMatrix(); // creates new matrix 
+	
+	 		for(int method=1; method<4; method++){
+		 		find_all_neighbors(method);
+				prediction();
+				float error = find_error();
+				
+				switch(method){
+				
+				case 1: error_Jacard  += error ;
+						write_TXT_data("Jacard", iterations, error);
+						break;
+				case 2: error_Cosine  += error ;
+						write_TXT_data("Cosine", iterations, error);
+						break;
+				case 3: error_Pearson += error;
+						write_TXT_data("Pearson", iterations, error);
+						break;
+				}
+	 		}
+	 		
+	 		
+	 		reverse_matrix(); // reverse matrix 
+	 		for(int method=1; method<4; method++){
+		 		find_all_neighbors(method);
+				prediction();
+				float error = find_error();
+				
+				switch(method){
+				
+				case 1: error_Jacard  += error ;
+						write_TXT_data("Jacard_reverse", iterations, error);
+						break;
+				case 2: error_Cosine  += error ;
+						write_TXT_data("Cosine_reverse", iterations, error);
+						break;
+				case 3: error_Pearson += error;
+						write_TXT_data("Pearson_reverse", iterations, error);
+						break;
+				}
+	 		}
+	 		reverse_matrix(); // reverse again matrix so its the original!  
+
+		}
+		
+		switch(exersice){
+		case "A": 
+			gui.add_new_data_exercise(1,error_Jacard/T,k);
+			gui.add_new_data_exercise(2,error_Cosine/T,k);
+			gui.add_new_data_exercise(3,error_Pearson/T,k);
+			break;
+		case "B":
+			gui.add_new_data_exercise(1,error_Jacard/T,x);
+			gui.add_new_data_exercise(2,error_Cosine/T,x);
+			gui.add_new_data_exercise(3,error_Pearson/T,x);
+		}
+
+		
+	}
+	
+	
+	public static void reverse_matrix(){
+		
+		Data_Matrix temp_matrix = new Data_Matrix(M, N, X);
+		temp_matrix = data ;
+		
+		
+		int temp = N ;
+		N = M ;
+		M = temp ;
+        data = new Data_Matrix(M, N, X);
+        data_predicted = new Data_Matrix(M, N, X);
+        error_matrix = new Data_Matrix(M+1, N+1, X);
+        
+        for(int i=0; i< data.M; i++){
+        	for(int j=0; j<data.N; j++){
+        		data.data[i][j] = temp_matrix.data[j][i];
+    
+        	}
+        }
+        
+        data.print_data_matrix_graphics(gui.model); // print our data matrix in gui
+		
+	}
+	
+	public static void compute_all_iterations(){
+		
+		for(int iterations=0; iterations<T; iterations++){
+	 		createMatrix(); // creates new matrix 
+	 		gui.textPane.setText(gui.textPane.getText() +"\nIteration : "+ iterations);
+	 		for(int method=1; method<4; method++){
+	 			
+		 		String name=null;
+		 		
+		 		switch(method){
+		 		case 1:name = "Jacard"; break ; 
+		 		case 2:name = "Cosine"; break ;
+		 		case 3:name = "Pearson"; break;
+		 		}
+		 		
+		 		
+		 		gui.textPane.setText(gui.textPane.getText() +"\ncomputing : "+ name + " similarity");
+		 		
+		 		find_all_neighbors(method);
+				prediction();
+				float error = find_error();
+				
+				gui.add_new_data(method,error);
+				
+				
+				switch(method){
+				case 1:	write_TXT_data("Jacard" ,  iterations , error) ;
+				case 2:	write_TXT_data("Cosine" ,  iterations , error) ;
+				case 3:	write_TXT_data("Pearson" , iterations , error) ;
+				}
+				
+	 		}
+
+		}
+	}
+	
+	
+	
+	
+	public static void compute_one_iterations(int method){ // computes one iteration
+														  // find k-neighbors --> predict new values --> calculate error 
+		
+	 		createMatrix(); // creates new matrix 
+	 		String name=null;
+	 		
+	 		switch(method){
+	 		case 1:name = "Jacard"; break ; 
+	 		case 2:name = "Cosine"; break ;
+	 		case 3:name = "Pearson"; break;
+	 		}
+	 		
+	 		gui.textPane.setText(gui.textPane.getText() +"\ncomputing : "+ name + " similarity");
+	 		
+	 		find_all_neighbors(method);
+			prediction();
+			float error = find_error();		
+			gui.add_new_data(method,error);
+	}
+	
+	
+	
+	
+	public static float find_error(){
+		
+		float error;
 
 		error_matrix = data.get_error_matrix(data_predicted);
-        System.out.println("error matrix:");
-        error_matrix.print_data_matrix();
-        System.out.println("total error :" + data.get_total_error(data_predicted));
-		
+		error = data.get_total_error(data_predicted);
+		error_matrix.data[M][N] = error ;
+		error_matrix.print_data_matrix_graphics(gui.model_error);
+
+        gui.textPane.setText(gui.textPane.getText() +"\ntotal error :" + data.get_total_error(data_predicted) );
+		return data.get_total_error(data_predicted);
 		
 	}
 
@@ -81,7 +268,6 @@ public class recomendation_system extends JPanel {
 			all_neighbors[j] = find_k_neighbors(j,case_similarity);
 		}
 		
-		prediction();
 	}
 	
 	public static void prediction(){
@@ -93,9 +279,10 @@ public class recomendation_system extends JPanel {
     
         	}
         }
-        System.out.println("new predicted matrix!");
-        data_predicted.print_data_matrix();
-		find_error();
+        data_predicted.print_data_matrix_graphics(gui.model_prediction);
+//        System.out.println("new predicted matrix!");
+//        data_predicted.print_data_matrix();
+//		find_error();
 		
 		
 	}
@@ -159,7 +346,7 @@ public class recomendation_system extends JPanel {
     	String path = System.getProperty("user.dir");
     	path = path + "/CONFIGFILE.TXT";
 //    	Scanner fileIn = new Scanner(new File(path));
-    	System.out.println(path);
+//    	System.out.println(path);
     	
     	try {
 			Scanner fileIn = new Scanner(new File(path));
@@ -167,7 +354,6 @@ public class recomendation_system extends JPanel {
 			while(fileIn.hasNextLine()){
 				
 				String  input_data;
-				int value ;
 								
 				input_data = fileIn.nextLine() ;
 				switch(input_data.charAt(0)){
@@ -181,16 +367,94 @@ public class recomendation_system extends JPanel {
 				}
 			}
 			
+			fileIn.close();
 			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
     	
     	
+    	
     }
     
+    
+    
+    public static void write_TXT_data(String method , int loop , float error){
+    	//for every loop 
+    	String path = System.getProperty("user.dir");
+    	String name = null;
+    	if(!exercise_A_or_B){
+    		name = "/data exercise A/"+ method+"_"+"K"+Integer.toString(K)+"_"+Integer.toString(loop)+".TXT";
+    	}
+    	else{
+    		name = "/data exercise B/"+ method+"_"+"X"+Integer.toString(X)+"_"+Integer.toString(loop)+".TXT";
+    	}
+    	
+    	path = path + name ;
+        File logFile = new File(path);
+        System.out.println(path);
+        
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
+			
+			writer.write("Method: " + method +"\n");
+			writer.write("Iteration : "+ Integer.toString(loop)+"\n");
+			writer.write("Total matrix error: " + Float.toString(error)+"\n");
+			writer.write("-1 values are null data \n\n\n\n");
+			writer.write("********************** DATA MATRIX ********************** \n\n");
+			
+			
+	        for(int i=0; i< data.M; i++){//write data matrix 
+
+	        	for(int j=0; j<data.N; j++){
+	        		if(data.data[i][j]!=-1){
+	        			writer.write(" "); // fixes alignment of data
+	        		}
+	        		writer.write(Float.toString(data.data[i][j]) + "\t");
+	        		
+	        	}
+	        	writer.write("\n");
+	        }
+	        
+	        
+			writer.write("\n\n\n********************** PREDICTION MATRIX ********************** \n\n");
+	        for(int i=0; i< data.M; i++){//write prediction matrix
+
+	        	for(int j=0; j<data.N; j++){
+
+	        		writer.write(Float.toString(data_predicted.data[i][j]) + "\t");
+	        		
+	        	}
+	        	writer.write("\n");
+	        }
+	        
+	        
+	        
+			writer.write("\n\n\n********************** ERROR MATRIX ********************** \n\n");
+
+	        for(int i=0; i< data.M; i++){//write error matrix
+
+	        	for(int j=0; j<data.N; j++){
+	        		if(data.data[i][j]!=-1){
+	        			writer.write(" "); // fixes alignment of data
+	        		}
+	        		writer.write(Float.toString(error_matrix.data[i][j]) + "\t");
+	        		
+	        	}
+	        	writer.write("\n");
+	        }
+	        
+	        
+	        
+	        
+			writer.close(); 
+
+	        	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}    	
+    }
     
     public static void setTxt(){
     	String path = System.getProperty("user.dir");
@@ -206,7 +470,6 @@ public class recomendation_system extends JPanel {
 			writer.write("K" + gui.textField_K.getText()+"\n");
 			writer.close(); 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -215,9 +478,9 @@ public class recomendation_system extends JPanel {
     public static void createMatrix(){
         data = new Data_Matrix(M, N, X);
         data_predicted = new Data_Matrix(M, N, X);
-        error_matrix = new Data_Matrix(M, N, X);
+        error_matrix = new Data_Matrix(M+1, N+1, X);
         
-        data.print_data_matrix_graphics(gui.textPane); // print our data matrix in gui
+        data.print_data_matrix_graphics(gui.model); // print our data matrix in gui
         
 
 //        data_predicted.print_data_matrix();
@@ -225,3 +488,7 @@ public class recomendation_system extends JPanel {
     }
     
 }
+
+
+
+

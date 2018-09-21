@@ -25,6 +25,7 @@ public class Nearest_Neighbor {// keep a matrix with the K Nearest Neighbors
 				break ;
 				
 			}
+			
 		
 		
 	}

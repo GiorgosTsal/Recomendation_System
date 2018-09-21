@@ -26,4 +26,5 @@ public class Cosine_similarity {
 		
 	}
 	
+	
 }
