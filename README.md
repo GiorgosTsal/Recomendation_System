@@ -1,10 +1,7 @@
 # Recomendation_System
-Based on User-User &amp; Product-Product similarity: Predicts user's reviews and recommends suitable products and vice versa
+*Based on User-User &amp; Product-Product similarity: Predicts user's reviews and recommends suitable products and vice versa
 
-
-# Recommender System
-
-Ανάκτηση Πληροφορίας και Μηχανές Αναζήτησης 
+*For my course Information Retrieval and Search Engines at my university*
 
 Θα υλοποιήσετε ένα σύστημα συστάσεων (recommender system). Η υλοποίηση μπορεί να
 γίνει σε όποια γλώσσα προγραμματισμού προτιμάτε. Συγκεκριμένα, το πρόγραμμα σας θα
